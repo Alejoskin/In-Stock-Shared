@@ -1,42 +1,132 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
 }
 
+/* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1a1a2e;
+  padding: 15px 30px;
+  height: 60px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo Styling */
 .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+  font-size: 24px;
+  font-weight: bold;
+  color: #e94560;
+  text-decoration: none;
 }
+
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  color: #ffffff;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Buttons Styling */
+button {
+  padding: 10px 15px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 5px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.settings-button {
+  background-color: #16213e;
+  color: white;
 }
 
-.card {
-  padding: 2em;
+.settings-button:hover {
+  background-color: #0f3460;
 }
 
-.read-the-docs {
-  color: #888;
+.login-button {
+  background-color: #e94560;
+  color: white;
+}
+
+.login-button:hover {
+  background-color: #ff4757;
+}
+
+.register-button {
+  background-color: #0f3460;
+  color: white;
+}
+
+.register-button:hover {
+  background-color: #1b4965;
+}
+
+/* Login/Register Section */
+.login {
+  display: flex;
+  gap: 10px;
+}
+
+
+.left-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 12.5%;
+  background-color: black;
+  position: fixed;
+  top: 60px; /* Ensures it starts below the header */
+  left: 0;
+  height: calc(100vh - 60px); /* Makes it extend to the bottom of the viewport */
+  padding: 10px;
+}
+
+/* Dropdown Menu */
+.dropdown {
+  position: relative;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.dropdown-button {
+  background-color: #16213e;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: left;
+}
+
+.dropdown-button:hover {
+  background-color: #0f3460;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #ffffff;
+  min-width: 160px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
 }
