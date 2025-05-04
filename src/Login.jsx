@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-} from 'firebase/auth'; //sin install firebase
-import auth from '../firebase-config'; //sin crear
+} from 'firebase/auth';
+import auth from '../firebase-config';
 import { useNavigate } from 'react-router-dom';
+
+import './login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState(false);
   const navigate = useNavigate();
-  const [loginError, setLogError] = useState(true);
+
+  useEffect(() => {
+    setLoginError(false); // Limpia el error al montar
+  }, []);
 
   const handleLogin = async () => {
     try {
@@ -19,8 +24,8 @@ function Login() {
       navigate('/');
       console.log('User is logged in');
     } catch (error) {
-      setLogError(false);
-      console.error('Login-Failed', error.message);
+      setLoginError(true);
+      console.error('Login failed:', error.message);
     }
   };
 
@@ -28,34 +33,36 @@ function Login() {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       navigate('/');
-      console.log('User Registerd');
+      console.log('User registered');
     } catch (error) {
-      setLogError(false);
-      console.log('Registration Failed: ', error.message);
+      setLoginError(true);
+      console.log('Registration failed:', error.message);
     }
   };
 
   return (
-    <div>
+    <div className="login-container">
+      <h2 className="login-title">In Stock</h2>
+
+      {loginError && <h3 className="error-message">Wrong username or password.</h3>}
+
       <input
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Enter your email"
-      />{' '}
-      <br />
+      />
       <input
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Enter your password"
-      />{' '}
-      <br />
-      <button onClick={handleLogin}> Login </button>
-      <br />
-      <button onClick={handleRegister}> Register </button>
-      <br />
-      {loginError ? <p> </p> : <h3> Wrong username or password.</h3>}
+      />
+
+      <div className="login-actions">
+        <button className="login-button" onClick={handleLogin}>Login</button>
+        <button className="register-button" onClick={handleRegister}>Register</button>
+      </div>
     </div>
   );
 }

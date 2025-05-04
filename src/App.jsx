@@ -1,50 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import './App.css';
+
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+
+import Login from './Login.jsx';
+import Home from './Home';
+import auth from '../firebase-config';
+
+function PrivateRoute({ children }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) =>
+      setIsAuthenticated(!!user)
+    );
+    return () => unsubscribe();
+  }, []);
+
+  if (isAuthenticated === null) {
+    return <div> Loading...</div>;
+  }
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+}
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      
-    <div class="header">
-        <button class="settings-button">Settings</button> 
-        <a href="design.html" class="logo">In Stock</a>
-
-        <div class="login"> 
-            <button class="login-button">Login</button>
-            <button class="register-button">Register</button>
-        </div>
-    </div>
-
-    <div class="left-menu">
-        <div class="dropdown">
-        <button class="dropdown-button">Dropdown</button>
-        <div class="dropdown-content">
-            <a href="#">Link 1</a>
-            <a href="#">Link 2</a>
-            <a href="#">Link 3</a>
-        </div>
-        </div>
-        <div class="dropdown">
-            <button class="dropdown-button">Dropdown</button>
-            <div class="dropdown-content">
-                <a href="#">Link 1</a>
-                <a href="#">Link 2</a>
-                <a href="#">Link 3</a>
-            </div>
-            
-        </div>
-      </div>
-
-
-
-
-
-    </>
+  <Router>
+    <Routes>
+      <Route path="login" element={<Login />}>
+        {' '}
+      </Route>
+      <Route path="/" element ={
+          <PrivateRoute>
+            <Home />
+          </PrivateRoute>
+        }
+      ></Route>
+    </Routes>
+  </Router>
   )
 }
 
-export default App
+export default App;

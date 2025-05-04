@@ -1,0 +1,60 @@
+/* Centra el contenedor en la pantalla */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* vertical */
+    align-items: center;     /* horizontal */
+    height: 100vh;           /* ocupa toda la altura */
+    background-color: #f4f4f4;
+  }
+  
+  /* Título "In Stock" */
+  .login-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #e94560;
+    margin-bottom: 10px;
+  }
+  
+  /* Mensaje de error */
+  .error-message {
+    color: #e94560;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  /* Campos de entrada */
+  input {
+    width: 250px;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  /* Contenedor de botones */
+  .login-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  /* Reutiliza tus estilos previos para botones si ya los tienes */
+  .login-button {
+    background-color: #e94560;
+    color: white;
+  }
+  
+  .login-button:hover {
+    background-color: #ff4757;
+  }
+  
+  .register-button {
+    background-color: #0f3460;
+    color: white;
+  }
+  
+  .register-button:hover {
+    background-color: #1b4965;
+  }
+  
