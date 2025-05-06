@@ -1,60 +1,67 @@
+html, body {
+  height: 100%; /* Ensure the page takes full height */
+  margin: 0;    /* Remove any default margin */
+  display: flex;
+  justify-content: center;  /* Center horizontally */
+  align-items: center;      /* Center vertically */
+}
+
 /* Centra el contenedor en la pantalla */
 .login-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* vertical */
-    align-items: center;     /* horizontal */
-    height: 100vh;           /* ocupa toda la altura */
-    background-color: #f4f4f4;
-  }
-  
-  /* Título "In Stock" */
-  .login-title {
-    font-size: 28px;
-    font-weight: bold;
-    color: #e94560;
-    margin-bottom: 10px;
-  }
-  
-  /* Mensaje de error */
-  .error-message {
-    color: #e94560;
-    font-size: 16px;
-    margin-bottom: 10px;
-  }
-  
-  /* Campos de entrada */
-  input {
-    width: 250px;
-    padding: 10px;
-    margin-bottom: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  /* Contenedor de botones */
-  .login-actions {
-    display: flex;
-    gap: 10px;
-  }
-  
-  /* Reutiliza tus estilos previos para botones si ya los tienes */
-  .login-button {
-    background-color: #e94560;
-    color: white;
-  }
-  
-  .login-button:hover {
-    background-color: #ff4757;
-  }
-  
-  .register-button {
-    background-color: #0f3460;
-    color: white;
-  }
-  
-  .register-button:hover {
-    background-color: #1b4965;
-  }
-  
+  display: flex;
+  flex-direction: column; /* Items will be arranged in a column */
+  justify-content: center; /* Center content vertically */
+  align-items: center;     /* Center content horizontally */
+  background-color: #f4f4f4;
+  text-align: center;
+  width: 50%;  /* Set the width of the container */
+  height: 100vh; /* Take up the full viewport height */
+  margin: 0 auto; /* Auto margins to center it horizontally */
+  padding: 20px; /* Optional: Add some padding for spacing */
+  box-sizing: border-box; /* Ensure padding doesn’t affect width/height */
+}
+
+.login-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #e94560;
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: #e94560;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+input {
+  width: 250px;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.login-button {
+  background-color: #e94560;
+  color: white;
+}
+
+.login-button:hover {
+  background-color: #ff4757;
+}
+
+.register-button {
+  background-color: #0f3460;
+  color: white;
+}
+
+.register-button:hover {
+  background-color: #1b4965;
+}
