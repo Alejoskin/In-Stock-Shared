@@ -36,7 +36,7 @@ function Home() {
     <>
       <div className="header">
         <button className="settings-button">Settings</button>
-        <a href="design.html" className="logo">In Stock</a>
+        <a href="Home.jsx" className="logo">In Stock</a>
 
         <div className="login">
           {isLoggedIn ? (
