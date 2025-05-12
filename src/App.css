@@ -90,6 +90,25 @@ button {
   left: 0;
   height: calc(100vh - 60px); /* Makes it extend to the bottom of the viewport */
   padding: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  z-index: 2;
+}
+
+.left-menu.hidden {
+  width: 0;
+  opacity: 0;
+  padding: 10px 0; /* Reduce horizontal padding when collapsed */
+}
+
+.left-menu .dropdown,
+.left-menu button {
+  transition: opacity 0.3s ease-out;
+}
+
+.left-menu.hidden .dropdown {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .category{
@@ -163,12 +182,19 @@ button {
 .table-area{
   position: fixed;
   top: 65px;
-  left: 115px;
+  left: 95px;
   right: 0;
   bottom: 0;
   padding: 10px;
   overflow: auto;
-  background-color: purple;
+  background-color: white;
+  transition: left 0.3s ease-in-out;
+  z-index: 1;
+
+}
+
+.table-area.full-width {
+  left: 0;
 }
 
 table{
@@ -188,3 +214,5 @@ td, th{
 tr:nth-child(even){
   background-color: gray;
 }
+
+
