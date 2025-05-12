@@ -18,20 +18,10 @@ function App() {
 
     <div className="left-menu">
         <div className="dropdown">
-        <button className="dropdown-button">Dropdown</button>
-        <div className="dropdown-content">
-            <a href="#">Link 1</a>
-            <a href="#">Link 2</a>
-            <a href="#">Link 3</a>
-        </div>
+        <button className="category" onClick={""}>Category Name</button>
         </div>
         <div className="dropdown">
-            <button className="dropdown-button">Dropdown</button>
-            <div className="dropdown-content">
-                <a href="#">Link 1</a>
-                <a href="#">Link 2</a>
-                <a href="#">Link 3</a>
-            </div>
+            <button className="new-category">New Category</button>
             
         </div>
         <div className="table-area">
