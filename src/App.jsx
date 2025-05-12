@@ -1,51 +1,50 @@
-import { useState, useEffect } from 'react';
-import './App.css';
-
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from 'react-router-dom';
-import { onAuthStateChanged } from 'firebase/auth';
-
-import Login from './Login.jsx';
-import Home from './Home';
-import auth from '../firebase-config';
-
-function PrivateRoute({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) =>
-      setIsAuthenticated(!!user)
-    );
-    return () => unsubscribe();
-  }, []);
-
-  if (isAuthenticated === null) {
-    return <div> Loading...</div>;
-  }
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
-}
+import { useState } from 'react'
+import './App.css'
 
 function App() {
 
   return (
-  <Router>
-    <Routes>
-      <Route path="login" element={<Login />}>
-        {' '}
-      </Route>
-      <Route path="/" element ={
-          <PrivateRoute>
-            <Home />
-          </PrivateRoute>
-        }
-      ></Route>
-    </Routes>
-  </Router>
+    <>
+      
+    <div className="header">
+        <button className="settings-button">Settings</button> 
+        <a href="App.jsx" className="logo">In Stock</a>
+
+        <div className="login"> 
+            <button className="login-button">Login</button>
+            <button className="register-button">Register</button>
+        </div>
+    </div>
+
+    <div className="left-menu">
+        <div className="dropdown">
+        <button className="dropdown-button">Dropdown</button>
+        <div className="dropdown-content">
+            <a href="#">Link 1</a>
+            <a href="#">Link 2</a>
+            <a href="#">Link 3</a>
+        </div>
+        </div>
+        <div className="dropdown">
+            <button className="dropdown-button">Dropdown</button>
+            <div className="dropdown-content">
+                <a href="#">Link 1</a>
+                <a href="#">Link 2</a>
+                <a href="#">Link 3</a>
+            </div>
+            
+        </div>
+        <div className="table-area">
+
+        </div>
+      </div>
+
+
+
+
+
+    </>
   )
 }
 
-export default App;
+export default App

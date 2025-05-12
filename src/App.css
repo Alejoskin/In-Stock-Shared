@@ -8,16 +8,15 @@ body {
 
 /* Header Styles */
 .header {
+  position: fixed;
+  top: 0px;
   display: flex;
-  position:fixed;
-  justify-content: space-between;
+  justify-content:space-evenly; /*can change para qie los buttons se vena mejor*/
   align-items: center;
   background-color: #1a1a2e;
   padding: 15px 30px;
-  height: auto;
-  width: calc(100% - 60px);
+  width: 100%;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  top: 0px;
 }
 
 /* Logo Styling */
@@ -54,7 +53,6 @@ button {
 .login-button {
   background-color: #e94560;
   color: white;
-  right: 50px;
 }
 
 .login-button:hover {
@@ -73,7 +71,6 @@ button {
 /* Login/Register Section */
 .login {
   display: flex;
-  left: 100px;
   gap: 10px;
 }
 
