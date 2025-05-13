@@ -20,10 +20,13 @@ function App() {
     // Set up auth state listener
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(!!user);
+      if (!user) {
+        navigate('/login');
+      }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
@@ -38,20 +41,14 @@ function App() {
     }
   };
 
-  const handleLogin = () => {
-    navigate('/login');
-  };
-
   return (
     <>
       <div className="header">
         <button className="settings-button" onClick={toggleSidebar}>Settings</button>
         <a href="#" className="logo">In Stock</a>
         <div className="login">
-          {isLoggedIn ? (
+          {isLoggedIn && (
             <button className="login-button" onClick={handleLogout}>Logout</button>
-          ) : (
-            <button className="login-button" onClick={handleLogin}>Login</button>
           )}
         </div>
       </div>
