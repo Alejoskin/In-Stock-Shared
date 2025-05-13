@@ -47,9 +47,7 @@ function App() {
         <button className="settings-button" onClick={toggleSidebar}>Settings</button>
         <a href="#" className="logo">In Stock</a>
         <div className="login">
-          {isLoggedIn && (
-            <button className="login-button" onClick={handleLogout}>Logout</button>
-          )}
+          <button className="login-button" onClick={handleLogout}>Logout</button>
         </div>
       </div>
       <div className={`left-menu ${sidebarVisible ? '' : 'hidden'}`}>
