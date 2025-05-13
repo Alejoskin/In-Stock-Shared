@@ -3,7 +3,7 @@ import './App.css';
 import data from './data.json';
 import { useNavigate } from 'react-router-dom';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import auth from './firebase-config';
+import auth from '../firebase-config';
 
 function App() {
   const [currentData, setCurrentData] = useState([]);
