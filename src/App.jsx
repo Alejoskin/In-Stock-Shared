@@ -1,23 +1,46 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import data from './data.json'; // If it's in src/
+import data from './data.json';
 import { useNavigate } from 'react-router-dom';
-
+import { signOut, onAuthStateChanged } from 'firebase/auth';
+import auth from './firebase-config';
 
 function App() {
   const [currentData, setCurrentData] = useState([]);
   const [fullData, setFullData] = useState({});
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
   
   useEffect(() => {
     // Load JSON data on mount
     setFullData(data);
     setCurrentData(data.category1);
+
+    // Set up auth state listener
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(!!user);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const toggleSidebar = () =>{
+  const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
-  }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error.message);
+    }
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
 
   return (
     <>
@@ -25,16 +48,17 @@ function App() {
         <button className="settings-button" onClick={toggleSidebar}>Settings</button>
         <a href="#" className="logo">In Stock</a>
         <div className="login">
-          <button className="login-button">Login</button>
-          <button className="register-button">Register</button>
+          {isLoggedIn ? (
+            <button className="login-button" onClick={handleLogout}>Logout</button>
+          ) : (
+            <button className="login-button" onClick={handleLogin}>Login</button>
+          )}
         </div>
       </div>
       <div className={`left-menu ${sidebarVisible ? '' : 'hidden'}`}>
-
-      <div className="dropdown"> 
-        <div className='dropdown'>
-          
-        </div>
+        <div className="dropdown"> 
+          <div className='dropdown'>
+          </div>
           <button className="category" onClick={() => setCurrentData(fullData.allItems)}>All Items</button>
         </div>
         <div className="dropdown">
@@ -47,8 +71,6 @@ function App() {
           <button className="new-category">New Category</button>
         </div>
       </div>
-    
-
 
       <div className={`table-area ${sidebarVisible ? '' : 'full-width'}`}> 
         <table>
