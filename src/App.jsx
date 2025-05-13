@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import data from './data.json'; // If it's in src/
+import { useNavigate } from 'react-router-dom';
+
 
 function App() {
   const [currentData, setCurrentData] = useState([]);
   const [fullData, setFullData] = useState({});
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  
   useEffect(() => {
     // Load JSON data on mount
     setFullData(data);
@@ -27,6 +30,13 @@ function App() {
         </div>
       </div>
       <div className={`left-menu ${sidebarVisible ? '' : 'hidden'}`}>
+
+      <div className="dropdown"> 
+        <div className='dropdown'>
+          
+        </div>
+          <button className="category" onClick={() => setCurrentData(fullData.allItems)}>All Items</button>
+        </div>
         <div className="dropdown">
           <button className="category" onClick={() => setCurrentData(fullData.category1)}>Category 1</button>
         </div>

@@ -6,6 +6,11 @@
     "category2": [
       { "name": "Product X", "description": "Desc X", "type": "Type C", "amount": 20 },
       { "name": "Product Y", "description": "Desc Y", "type": "Type D", "amount": 8 }
+    ],
+    "allItems":[ 
+    { "name": "Product X", "description": "Desc X", "type": "Type C", "amount": 20 },
+    { "name": "Item 2", "description": "Desc 2", "type": "Type B", "amount": 5 }
+
     ]
   }
   
