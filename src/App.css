@@ -278,3 +278,56 @@ td button:hover {
     background-color: white;
   }
 }
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .header,
+  .left-menu,
+  .new-item-form,
+  .login,
+  .settings-button,
+  .print-button {
+    display: none !important;
+  }
+
+  .table-area {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12pt;
+  }
+
+  th,
+  td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+  }
+
+  th:nth-child(5),
+  td:nth-child(5) {
+    display: table-cell !important;
+  }
+
+  .print-header {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+}
+
+@media screen {
+  .print-header {
+    display: none;
+  }
+}

@@ -229,9 +229,12 @@ function App() {
       <div className={`table-area ${sidebarVisible ? '' : 'full-width'}`}>
         {/* Added print button when showing all items */}
         {showAllItems && (
+          <>
           <button className="print-button" onClick={handlePrint}>
             Print Inventory
           </button>
+          <h1 className="print-header">Inventory Overview</h1>
+          </>
         )}
         <div className="new-item-form">
           <input
