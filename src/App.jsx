@@ -147,6 +147,10 @@ function App() {
     setCurrentCategoryId(null);
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <>
       <div className="header">
@@ -216,6 +220,11 @@ function App() {
       </div>
 
       <div className={`table-area ${sidebarVisible ? '' : 'full-width'}`}>
+        {showAllItems && (
+          <button className="print-button" onClick={handlePrint}>
+            Print Inventory
+          </button>
+        )}
         <div className="new-item-form">
           <input
             type="text"

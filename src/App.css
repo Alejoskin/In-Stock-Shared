@@ -71,6 +71,17 @@ button {
   background-color: #1b4965;
 }
 
+/* Print Button */
+.print-button {
+  background-color: #28a745;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.print-button:hover {
+  background-color: #218838;
+}
+
 /* Login/Register Section */
 .login {
   display: flex;
@@ -236,4 +247,34 @@ td button {
 
 td button:hover {
   background-color: #ff4757;
+}
+
+/* Print styles */
+@media print {
+  .header,
+  .left-menu,
+  .new-item-form,
+  .print-button,
+  td button {
+    display: none !important;
+  }
+
+  .table-area {
+    position: static;
+    padding: 0;
+    overflow: visible;
+  }
+
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  body {
+    background-color: white;
+  }
 }
