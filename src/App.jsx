@@ -42,6 +42,7 @@ function App() {
                 items: category.items
                   ? Object.entries(category.items).map(([itemId, item]) => ({
                       id: itemId,
+                      categoryId: id,  // Add categoryId to each item
                       categoryName: category.name,
                       ...item,
                     }))
@@ -269,7 +270,7 @@ function App() {
           </thead>
           <tbody>
             {currentData.map((item) => (
-              <tr key={`${item.id}`}>
+              <tr key={`${item.categoryId}-${item.id}`}>
                 <td>{item.name}</td>
                 <td>{item.description}</td>
                 <td>{item.type}</td>
@@ -280,11 +281,7 @@ function App() {
                     onClick={() =>
                       handleUpdateAmount(
                         item.id,
-                        showAllItems
-                          ? categories.find(
-                              (cat) => cat.name === item.categoryName
-                            ).id
-                          : currentCategoryId,
+                        showAllItems ? item.categoryId : currentCategoryId,
                         1
                       )
                     }
@@ -295,11 +292,7 @@ function App() {
                     onClick={() =>
                       handleUpdateAmount(
                         item.id,
-                        showAllItems
-                          ? categories.find(
-                              (cat) => cat.name === item.categoryName
-                            ).id
-                          : currentCategoryId,
+                        showAllItems ? item.categoryId : currentCategoryId,
                         -1
                       )
                     }
