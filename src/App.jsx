@@ -1,27 +1,67 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './App.css';
-import data from './data.json';
 import { useNavigate } from 'react-router-dom';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import auth from '../firebase-config';
+import { ref, onValue, push, set, update } from 'firebase/database';
+import auth, { db } from '../firebase-config';
 
 function App() {
   const [currentData, setCurrentData] = useState([]);
-  const [fullData, setFullData] = useState({});
+  const [categories, setCategories] = useState([]);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [newCategoryForm, setNewCategoryForm] = useState({
+    name: '',
+  });
+  const [newItem, setNewItem] = useState({
+    name: '',
+    description: '',
+    type: '',
+    amount: 0,
+  });
+  const [currentCategoryId, setCurrentCategoryId] = useState(null);
+  const currentCategoryIdRef = useRef(null);
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    // Load JSON data on mount
-    setFullData(data);
-    setCurrentData(data.category1);
 
-    // Set up auth state listener
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(!!user);
       if (!user) {
         navigate('/login');
+      } else {
+        const categoriesRef = ref(db, 'categories');
+        onValue(categoriesRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const categoriesArray = Object.entries(data).map(
+              ([id, category]) => ({
+                id,
+                ...category,
+                items: category.items
+                  ? Object.entries(category.items).map(([itemId, item]) => ({
+                      id: itemId,
+                      ...item,
+                    }))
+                  : [],
+              })
+            );
+
+            setCategories(categoriesArray);
+
+            const selected = categoriesArray.find(
+              (cat) => cat.id === currentCategoryIdRef.current
+            );
+            if (selected) {
+              setCurrentData(selected.items || []);
+            } else if (categoriesArray.length > 0) {
+              const defaultCategory = categoriesArray[0];
+              setCurrentCategoryId(defaultCategory.id);
+              currentCategoryIdRef.current = defaultCategory.id;
+              setCurrentData(defaultCategory.items || []);
+            }
+          }
+        });
       }
     });
 
@@ -41,33 +81,146 @@ function App() {
     }
   };
 
+  const handleAddCategory = async () => {
+    if (newCategoryForm.name.trim()) {
+      const categoriesRef = ref(db, 'categories');
+      const newCategoryRef = push(categoriesRef);
+      await set(newCategoryRef, {
+        name: newCategoryForm.name,
+        items: [],
+      });
+      setNewCategoryForm({
+        name: '',
+      });
+      setShowNewCategoryInput(false);
+    }
+  };
+
+  const selectCategory = (category) => {
+    setCurrentCategoryId(category.id);
+    currentCategoryIdRef.current = category.id;
+    setCurrentData(category.items || []);
+  };
+
+  const handleAddItem = async () => {
+    if (
+      currentCategoryId &&
+      newItem.name &&
+      newItem.description &&
+      newItem.type
+    ) {
+      const categoryRef = ref(db, `categories/${currentCategoryId}/items`);
+      const newItemRef = push(categoryRef);
+      await set(newItemRef, newItem);
+      setNewItem({ name: '', description: '', type: '', amount: 0 });
+    }
+  };
+
+  const handleUpdateAmount = async (itemId, increment) => {
+    const category = categories.find((cat) => cat.id === currentCategoryId);
+    const item = category.items.find((item) => item.id === itemId);
+    if (!item) return;
+
+    const newAmount = Math.max(0, item.amount + increment);
+    const itemRef = ref(db, `categories/${currentCategoryId}/items/${itemId}`);
+    await update(itemRef, { amount: newAmount });
+  };
+
   return (
     <>
       <div className="header">
-        <button className="settings-button" onClick={toggleSidebar}>Settings</button>
-        <a href="#" className="logo">In Stock</a>
+        <button className="settings-button" onClick={toggleSidebar}>
+          Settings
+        </button>
+        <a href="#" className="logo">
+          In Stock
+        </a>
         <div className="login">
-          <button className="login-button" onClick={handleLogout}>Logout</button>
+          <button className="login-button" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </div>
       <div className={`left-menu ${sidebarVisible ? '' : 'hidden'}`}>
-        <div className="dropdown"> 
-          <div className='dropdown'>
+        {categories.map((category) => (
+          <div className="dropdown" key={category.id}>
+            <button
+              className="category"
+              onClick={() => selectCategory(category)}
+            >
+              {category.name}
+            </button>
           </div>
-          <button className="category" onClick={() => setCurrentData(fullData.allItems)}>All Items</button>
-        </div>
+        ))}
         <div className="dropdown">
-          <button className="category" onClick={() => setCurrentData(fullData.category1)}>Category 1</button>
-        </div>
-        <div className="dropdown">
-          <button className="category" onClick={() => setCurrentData(fullData.category2)}>Category 2</button>
-        </div>
-        <div className="dropdown">
-          <button className="new-category">New Category</button>
+          {showNewCategoryInput ? (
+            <div className="new-category-input">
+              <input
+                type="text"
+                value={newCategoryForm.name}
+                onChange={(e) =>
+                  setNewCategoryForm({
+                    ...newCategoryForm,
+                    name: e.target.value,
+                  })
+                }
+                placeholder="Category name"
+              />
+              <button onClick={handleAddCategory}>Add Category</button>
+              <button
+                onClick={() => {
+                  setShowNewCategoryInput(false);
+                  setNewCategoryForm({
+                    name: '',
+                  });
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              className="new-category"
+              onClick={() => setShowNewCategoryInput(true)}
+            >
+              New Category
+            </button>
+          )}
         </div>
       </div>
 
-      <div className={`table-area ${sidebarVisible ? '' : 'full-width'}`}> 
+      <div className={`table-area ${sidebarVisible ? '' : 'full-width'}`}>
+        <div className="new-item-form">
+          <input
+            type="text"
+            value={newItem.name}
+            onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+            placeholder="Item name"
+          />
+          <input
+            type="text"
+            value={newItem.description}
+            onChange={(e) =>
+              setNewItem({ ...newItem, description: e.target.value })
+            }
+            placeholder="Description"
+          />
+          <input
+            type="text"
+            value={newItem.type}
+            onChange={(e) => setNewItem({ ...newItem, type: e.target.value })}
+            placeholder="Type"
+          />
+          <input
+            type="number"
+            value={newItem.amount}
+            onChange={(e) =>
+              setNewItem({ ...newItem, amount: parseInt(e.target.value) || 0 })
+            }
+            placeholder="Amount"
+          />
+          <button onClick={handleAddItem}>Add Item</button>
+        </div>
         <table>
           <thead>
             <tr>
@@ -79,13 +232,20 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {currentData.map((item, index) => (
-              <tr key={index}>
+            {currentData.map((item) => (
+              <tr key={`${item.name}-${item.description}-${item.type}`}>
                 <td>{item.name}</td>
                 <td>{item.description}</td>
                 <td>{item.type}</td>
                 <td>{item.amount}</td>
-                <td><button>+</button> <button>-</button></td>
+                <td>
+                  <button onClick={() => handleUpdateAmount(item.id, 1)}>
+                    +
+                  </button>
+                  <button onClick={() => handleUpdateAmount(item.id, -1)}>
+                    -
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

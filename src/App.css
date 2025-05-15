@@ -16,7 +16,7 @@ body {
   align-items: center;
   background-color: #1a1a2e;
   padding: 15px 20px;
-  width: calc(100% - 40px); /* Adjust for padding */
+  width: calc(100% - 40px);
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   overflow-x: auto;
   z-index: 1000;
@@ -86,9 +86,9 @@ button {
   width: 95px;
   background-color: #1a1a2e;
   position: fixed;
-  top: 65px; /* Ensures it starts below the header */
+  top: 65px;
   left: 0;
-  height: calc(100vh - 60px); /* Makes it extend to the bottom of the viewport */
+  height: calc(100vh - 60px);
   padding: 10px;
   overflow: hidden;
   transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
@@ -98,7 +98,7 @@ button {
 .left-menu.hidden {
   width: 0;
   opacity: 0;
-  padding: 10px 0; /* Reduce horizontal padding when collapsed */
+  padding: 10px 0;
 }
 
 .left-menu .dropdown,
@@ -119,6 +119,7 @@ button {
   cursor: pointer;
   border-radius: 5px;
   text-align: left;
+  width: 100%;
 }
 
 .new-category {
@@ -130,12 +131,43 @@ button {
   cursor: pointer;
   border-radius: 5px;
   text-align: left;
+  width: 100%;
+}
+
+.new-category-input {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px;
+  background-color: #16213e;
+  border-radius: 5px;
+}
+
+.new-category-input input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 5px;
+}
+
+.new-category-input button {
+  width: 100%;
+  margin-top: 5px;
+  background-color: #e94560;
+  color: white;
+}
+
+.new-category-input button:last-child {
+  background-color: #6c757d;
 }
 
 .dropdown {
   position: relative;
   display: block;
   margin-bottom: 10px;
+  width: 100%;
 }
 
 .table-area {
@@ -155,6 +187,29 @@ button {
   left: 0;
 }
 
+.new-item-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  align-items: center;
+}
+
+.new-item-form input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.new-item-form button {
+  background-color: #e94560;
+  color: white;
+  padding: 8px 15px;
+}
+
 table {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   width: 100%;
@@ -169,5 +224,16 @@ td, th {
 }
 
 tr:nth-child(even) {
-  background-color: gray;
+  background-color: #f2f2f2;
+}
+
+td button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: #e94560;
+  color: white;
+}
+
+td button:hover {
+  background-color: #ff4757;
 }
