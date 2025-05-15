@@ -22,6 +22,7 @@ function App() {
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
   const currentCategoryIdRef = useRef(null);
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  // Added state to track if we're showing all items
   const [showAllItems, setShowAllItems] = useState(true);
   const navigate = useNavigate();
 
@@ -39,10 +40,12 @@ function App() {
               ([id, category]) => ({
                 id,
                 ...category,
+                // Added categoryId and categoryName to each item for unique identification
                 items: category.items
                   ? Object.entries(category.items).map(([itemId, item]) => ({
                       id: itemId,
-                      categoryName: category.name,
+                      categoryId: id,  // Store category ID with each item
+                      categoryName: category.name, // Store category name for display
                       ...item,
                     }))
                   : [],
@@ -51,14 +54,14 @@ function App() {
 
             setCategories(categoriesArray);
 
-            // Combine all items from all categories and sort them
-            const allItems = categoriesArray
-              .reduce((acc, category) => [...acc, ...category.items], [])
-              .sort((a, b) => a.name.localeCompare(b.name));
-
-            setCurrentData(allItems);
-
-            if (!showAllItems) {
+            // If showing all items, combine and sort them alphabetically
+            if (showAllItems) {
+              const allItems = categoriesArray
+                .reduce((acc, category) => [...acc, ...category.items], [])
+                .sort((a, b) => a.name.localeCompare(b.name));
+              setCurrentData(allItems);
+            } else {
+              // Show items from selected category
               const selected = categoriesArray.find(
                 (cat) => cat.id === currentCategoryIdRef.current
               );
@@ -77,7 +80,7 @@ function App() {
     });
 
     return () => unsubscribe();
-  }, [navigate, showAllItems]);
+  }, [navigate, showAllItems]); // Added showAllItems to dependencies
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
@@ -110,7 +113,7 @@ function App() {
   const selectCategory = (category) => {
     setCurrentCategoryId(category.id);
     currentCategoryIdRef.current = category.id;
-    setShowAllItems(false);
+    setShowAllItems(false); // Disable all items view when selecting a category
     setCurrentData(category.items || []);
   };
 
@@ -128,6 +131,7 @@ function App() {
     }
   };
 
+  // Updated to use categoryId parameter for handling updates in all items view
   const handleUpdateAmount = async (itemId, categoryId, increment) => {
     const category = categories.find((cat) => cat.id === categoryId);
     const item = category.items.find((item) => item.id === itemId);
@@ -138,6 +142,7 @@ function App() {
     await update(itemRef, { amount: newAmount });
   };
 
+  // New function to show all inventory items
   const showAllInventory = () => {
     setShowAllItems(true);
     const allItems = categories
@@ -147,6 +152,7 @@ function App() {
     setCurrentCategoryId(null);
   };
 
+  // New function to handle printing
   const handlePrint = () => {
     window.print();
   };
@@ -167,6 +173,7 @@ function App() {
         </div>
       </div>
       <div className={`left-menu ${sidebarVisible ? '' : 'hidden'}`}>
+        {/* Added "All Items" button at the top */}
         <div className="dropdown">
           <button className="category" onClick={showAllInventory}>
             All Items
@@ -220,6 +227,7 @@ function App() {
       </div>
 
       <div className={`table-area ${sidebarVisible ? '' : 'full-width'}`}>
+        {/* Added print button when showing all items */}
         {showAllItems && (
           <button className="print-button" onClick={handlePrint}>
             Print Inventory
@@ -263,28 +271,27 @@ function App() {
               <th>Description</th>
               <th>Type</th>
               <th>Amount</th>
+              {/* Added category column when showing all items */}
               {showAllItems && <th>Category</th>}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentData.map((item) => (
-              <tr key={`${item.id}`}>
+              // Updated key to use both categoryId and item.id for uniqueness
+              <tr key={`${item.categoryId}-${item.id}`}>
                 <td>{item.name}</td>
                 <td>{item.description}</td>
                 <td>{item.type}</td>
                 <td>{item.amount}</td>
+                {/* Show category name when in all items view */}
                 {showAllItems && <td>{item.categoryName}</td>}
                 <td>
                   <button
                     onClick={() =>
                       handleUpdateAmount(
                         item.id,
-                        showAllItems
-                          ? categories.find(
-                              (cat) => cat.name === item.categoryName
-                            ).id
-                          : currentCategoryId,
+                        showAllItems ? item.categoryId : currentCategoryId,
                         1
                       )
                     }
@@ -295,11 +302,7 @@ function App() {
                     onClick={() =>
                       handleUpdateAmount(
                         item.id,
-                        showAllItems
-                          ? categories.find(
-                              (cat) => cat.name === item.categoryName
-                            ).id
-                          : currentCategoryId,
+                        showAllItems ? item.categoryId : currentCategoryId,
                         -1
                       )
                     }
