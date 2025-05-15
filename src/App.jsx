@@ -22,6 +22,7 @@ function App() {
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
   const currentCategoryIdRef = useRef(null);
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [showAllItems, setShowAllItems] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,6 +42,7 @@ function App() {
                 items: category.items
                   ? Object.entries(category.items).map(([itemId, item]) => ({
                       id: itemId,
+                      categoryName: category.name,
                       ...item,
                     }))
                   : [],
@@ -49,16 +51,25 @@ function App() {
 
             setCategories(categoriesArray);
 
-            const selected = categoriesArray.find(
-              (cat) => cat.id === currentCategoryIdRef.current
-            );
-            if (selected) {
-              setCurrentData(selected.items || []);
-            } else if (categoriesArray.length > 0) {
-              const defaultCategory = categoriesArray[0];
-              setCurrentCategoryId(defaultCategory.id);
-              currentCategoryIdRef.current = defaultCategory.id;
-              setCurrentData(defaultCategory.items || []);
+            // Combine all items from all categories and sort them
+            const allItems = categoriesArray
+              .reduce((acc, category) => [...acc, ...category.items], [])
+              .sort((a, b) => a.name.localeCompare(b.name));
+
+            setCurrentData(allItems);
+
+            if (!showAllItems) {
+              const selected = categoriesArray.find(
+                (cat) => cat.id === currentCategoryIdRef.current
+              );
+              if (selected) {
+                setCurrentData(selected.items || []);
+              } else if (categoriesArray.length > 0) {
+                const defaultCategory = categoriesArray[0];
+                setCurrentCategoryId(defaultCategory.id);
+                currentCategoryIdRef.current = defaultCategory.id;
+                setCurrentData(defaultCategory.items || []);
+              }
             }
           }
         });
@@ -66,7 +77,7 @@ function App() {
     });
 
     return () => unsubscribe();
-  }, [navigate]);
+  }, [navigate, showAllItems]);
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
@@ -99,6 +110,7 @@ function App() {
   const selectCategory = (category) => {
     setCurrentCategoryId(category.id);
     currentCategoryIdRef.current = category.id;
+    setShowAllItems(false);
     setCurrentData(category.items || []);
   };
 
@@ -116,14 +128,23 @@ function App() {
     }
   };
 
-  const handleUpdateAmount = async (itemId, increment) => {
-    const category = categories.find((cat) => cat.id === currentCategoryId);
+  const handleUpdateAmount = async (itemId, categoryId, increment) => {
+    const category = categories.find((cat) => cat.id === categoryId);
     const item = category.items.find((item) => item.id === itemId);
     if (!item) return;
 
     const newAmount = Math.max(0, item.amount + increment);
-    const itemRef = ref(db, `categories/${currentCategoryId}/items/${itemId}`);
+    const itemRef = ref(db, `categories/${categoryId}/items/${itemId}`);
     await update(itemRef, { amount: newAmount });
+  };
+
+  const showAllInventory = () => {
+    setShowAllItems(true);
+    const allItems = categories
+      .reduce((acc, category) => [...acc, ...category.items], [])
+      .sort((a, b) => a.name.localeCompare(b.name));
+    setCurrentData(allItems);
+    setCurrentCategoryId(null);
   };
 
   return (
@@ -142,6 +163,11 @@ function App() {
         </div>
       </div>
       <div className={`left-menu ${sidebarVisible ? '' : 'hidden'}`}>
+        <div className="dropdown">
+          <button className="category" onClick={showAllInventory}>
+            All Items
+          </button>
+        </div>
         {categories.map((category) => (
           <div className="dropdown" key={category.id}>
             <button
@@ -228,21 +254,47 @@ function App() {
               <th>Description</th>
               <th>Type</th>
               <th>Amount</th>
+              {showAllItems && <th>Category</th>}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentData.map((item) => (
-              <tr key={`${item.name}-${item.description}-${item.type}`}>
+              <tr key={`${item.id}`}>
                 <td>{item.name}</td>
                 <td>{item.description}</td>
                 <td>{item.type}</td>
                 <td>{item.amount}</td>
+                {showAllItems && <td>{item.categoryName}</td>}
                 <td>
-                  <button onClick={() => handleUpdateAmount(item.id, 1)}>
+                  <button
+                    onClick={() =>
+                      handleUpdateAmount(
+                        item.id,
+                        showAllItems
+                          ? categories.find(
+                              (cat) => cat.name === item.categoryName
+                            ).id
+                          : currentCategoryId,
+                        1
+                      )
+                    }
+                  >
                     +
                   </button>
-                  <button onClick={() => handleUpdateAmount(item.id, -1)}>
+                  <button
+                    onClick={() =>
+                      handleUpdateAmount(
+                        item.id,
+                        showAllItems
+                          ? categories.find(
+                              (cat) => cat.name === item.categoryName
+                            ).id
+                          : currentCategoryId,
+                        -1
+                      )
+                    }
+                  >
                     -
                   </button>
                 </td>
