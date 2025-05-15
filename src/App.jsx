@@ -227,7 +227,7 @@ function App() {
       </div>
 
       <div className={`table-area ${sidebarVisible ? '' : 'full-width'}`}>
-        {/* Added print button when showing all items */}
+        {/* Added print button when showing all items, yes  */}
         {showAllItems && (
           <>
           <button className="print-button" onClick={handlePrint}>
