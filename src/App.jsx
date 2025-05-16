@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import './App.css';
 import { useNavigate } from 'react-router-dom';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import { ref, onValue, push, set, update } from 'firebase/database';
+import { ref, onValue, push, set, update, remove } from 'firebase/database';
 import auth, { db } from '../firebase-config';
 
 function App() {
@@ -19,10 +19,10 @@ function App() {
     type: '',
     amount: 0,
   });
+  const [editingItem, setEditingItem] = useState(null);
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
   const currentCategoryIdRef = useRef(null);
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
-  // Added state to track if we're showing all items
   const [showAllItems, setShowAllItems] = useState(true);
   const navigate = useNavigate();
 
@@ -40,12 +40,11 @@ function App() {
               ([id, category]) => ({
                 id,
                 ...category,
-                // Added categoryId and categoryName to each item for unique identification
                 items: category.items
                   ? Object.entries(category.items).map(([itemId, item]) => ({
                       id: itemId,
-                      categoryId: id,  // Store category ID with each item
-                      categoryName: category.name, // Store category name for display
+                      categoryId: id,
+                      categoryName: category.name,
                       ...item,
                     }))
                   : [],
@@ -54,14 +53,12 @@ function App() {
 
             setCategories(categoriesArray);
 
-            // If showing all items, combine and sort them alphabetically
             if (showAllItems) {
               const allItems = categoriesArray
                 .reduce((acc, category) => [...acc, ...category.items], [])
                 .sort((a, b) => a.name.localeCompare(b.name));
               setCurrentData(allItems);
             } else {
-              // Show items from selected category
               const selected = categoriesArray.find(
                 (cat) => cat.id === currentCategoryIdRef.current
               );
@@ -74,13 +71,16 @@ function App() {
                 setCurrentData(defaultCategory.items || []);
               }
             }
+          } else {
+            setCategories([]);
+            setCurrentData([]);
           }
         });
       }
     });
 
     return () => unsubscribe();
-  }, [navigate, showAllItems]); // Added showAllItems to dependencies
+  }, [navigate, showAllItems]);
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
@@ -113,7 +113,7 @@ function App() {
   const selectCategory = (category) => {
     setCurrentCategoryId(category.id);
     currentCategoryIdRef.current = category.id;
-    setShowAllItems(false); // Disable all items view when selecting a category
+    setShowAllItems(false);
     setCurrentData(category.items || []);
   };
 
@@ -131,7 +131,6 @@ function App() {
     }
   };
 
-  // Updated to use categoryId parameter for handling updates in all items view
   const handleUpdateAmount = async (itemId, categoryId, increment) => {
     const category = categories.find((cat) => cat.id === categoryId);
     const item = category.items.find((item) => item.id === itemId);
@@ -142,31 +141,43 @@ function App() {
     await update(itemRef, { amount: newAmount });
   };
 
-  const handleDeleteItem = async (itemId) => {
-    const itemRef = ref(db, `categories/${currentCategoryId}/items/${itemId}`);
+  const handleDeleteItem = async (itemId, categoryId) => {
+    const itemRef = ref(db, `categories/${categoryId}/items/${itemId}`);
     await remove(itemRef);
+  };
+
+  const handleEditItem = (item) => {
+    setEditingItem(item);
+    setNewItem({
+      name: item.name,
+      description: item.description,
+      type: item.type,
+      amount: item.amount,
+    });
+  };
+
+  const handleUpdateItem = async () => {
+    if (editingItem && newItem.name && newItem.description && newItem.type) {
+      const itemRef = ref(
+        db,
+        `categories/${editingItem.categoryId}/items/${editingItem.id}`
+      );
+      await update(itemRef, newItem);
+      setEditingItem(null);
+      setNewItem({ name: '', description: '', type: '', amount: 0 });
+    }
   };
 
   const handleDeleteCategory = async () => {
     if (currentCategoryId) {
       const categoryRef = ref(db, `categories/${currentCategoryId}`);
       await remove(categoryRef);
-      
-      // Reset current category and data
-      if (categories.length > 1) {
-        const newCurrentCategory = categories.find(cat => cat.id !== currentCategoryId);
-        setCurrentCategoryId(newCurrentCategory.id);
-        currentCategoryIdRef.current = newCurrentCategory.id;
-        setCurrentData(newCurrentCategory.items || []);
-      } else {
-        setCurrentCategoryId(null);
-        currentCategoryIdRef.current = null;
-        setCurrentData([]);
-      }
+      setCurrentCategoryId(null);
+      currentCategoryIdRef.current = null;
+      setShowAllItems(true);
     }
   };
 
-  // New function to show all inventory items
   const showAllInventory = () => {
     setShowAllItems(true);
     const allItems = categories
@@ -176,7 +187,6 @@ function App() {
     setCurrentCategoryId(null);
   };
 
-  // New function to handle printing
   const handlePrint = () => {
     window.print();
   };
@@ -197,7 +207,6 @@ function App() {
         </div>
       </div>
       <div className={`left-menu ${sidebarVisible ? '' : 'hidden'}`}>
-        {/* Added "All Items" button at the top */}
         <div className="dropdown">
           <button className="category" onClick={showAllInventory}>
             All Items
@@ -251,13 +260,12 @@ function App() {
       </div>
 
       <div className={`table-area ${sidebarVisible ? '' : 'full-width'}`}>
-        {/* Added print button when showing all items, yes  */}
         {showAllItems && (
           <>
-          <button className="print-button" onClick={handlePrint}>
-            Print Inventory
-          </button>
-          <h1 className="print-header">Inventory Overview</h1>
+            <button className="print-button" onClick={handlePrint}>
+              Print Inventory
+            </button>
+            <h1 className="print-header">Inventory Overview</h1>
           </>
         )}
         <div className="new-item-form">
@@ -289,14 +297,17 @@ function App() {
             }
             placeholder="Amount"
           />
-          <button onClick={handleAddItem}>Add Item</button>
+          {editingItem ? (
+            <button onClick={handleUpdateItem}>Update Item</button>
+          ) : (
+            <button onClick={handleAddItem}>Add Item</button>
+          )}
 
           {currentCategoryId && (
             <button onClick={handleDeleteCategory} className="delete-all-button">
               Delete Category
             </button>
           )}
-          
         </div>
         <table>
           <thead>
@@ -305,20 +316,17 @@ function App() {
               <th>Description</th>
               <th>Type</th>
               <th>Amount</th>
-              {/* Added category column when showing all items */}
               {showAllItems && <th>Category</th>}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentData.map((item) => (
-              // Updated key to use both categoryId and item.id for uniqueness
               <tr key={`${item.categoryId}-${item.id}`}>
                 <td>{item.name}</td>
                 <td>{item.description}</td>
                 <td>{item.type}</td>
                 <td>{item.amount}</td>
-                {/* Show category name when in all items view */}
                 {showAllItems && <td>{item.categoryName}</td>}
                 <td>
                   <button
@@ -342,6 +350,17 @@ function App() {
                     }
                   >
                     -
+                  </button>
+                  <button onClick={() => handleEditItem(item)}>Edit</button>
+                  <button
+                    onClick={() =>
+                      handleDeleteItem(
+                        item.id,
+                        showAllItems ? item.categoryId : currentCategoryId
+                      )
+                    }
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>
