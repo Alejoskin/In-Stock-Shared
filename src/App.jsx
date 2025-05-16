@@ -6,10 +6,13 @@ import { ref, onValue, push, set, update, remove } from 'firebase/database';
 import auth, { db } from '../firebase-config';
 
 function App() {
+  // State for managing current data and categories
   const [currentData, setCurrentData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // State for managing forms and inputs
   const [newCategoryForm, setNewCategoryForm] = useState({
     name: '',
   });
@@ -19,23 +22,34 @@ function App() {
     type: '',
     amount: 0,
   });
+  
+  // State for managing editing and item selection
   const [editingItem, setEditingItem] = useState(null);
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
   const currentCategoryIdRef = useRef(null);
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [showAllItems, setShowAllItems] = useState(true);
+  
+  // State for managing delete confirmations
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [showCategoryDeleteConfirm, setShowCategoryDeleteConfirm] = useState(false);
+  
   const navigate = useNavigate();
 
+  // Effect for handling authentication and data fetching
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(!!user);
       if (!user) {
         navigate('/login');
       } else {
+        // Set up real-time database listener
         const categoriesRef = ref(db, 'categories');
         onValue(categoriesRef, (snapshot) => {
           const data = snapshot.val();
           if (data) {
+            // Transform the data and add category information to items
             const categoriesArray = Object.entries(data).map(
               ([id, category]) => ({
                 id,
@@ -54,11 +68,13 @@ function App() {
             setCategories(categoriesArray);
 
             if (showAllItems) {
+              // Combine and sort all items alphabetically
               const allItems = categoriesArray
                 .reduce((acc, category) => [...acc, ...category.items], [])
                 .sort((a, b) => a.name.localeCompare(b.name));
               setCurrentData(allItems);
             } else {
+              // Show items from selected category
               const selected = categoriesArray.find(
                 (cat) => cat.id === currentCategoryIdRef.current
               );
@@ -82,10 +98,12 @@ function App() {
     return () => unsubscribe();
   }, [navigate, showAllItems]);
 
+  // UI toggle functions
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
   };
 
+  // Authentication functions
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -95,6 +113,7 @@ function App() {
     }
   };
 
+  // Category management functions
   const handleAddCategory = async () => {
     if (newCategoryForm.name.trim()) {
       const categoriesRef = ref(db, 'categories');
@@ -117,6 +136,7 @@ function App() {
     setCurrentData(category.items || []);
   };
 
+  // Item management functions
   const handleAddItem = async () => {
     if (
       currentCategoryId &&
@@ -141,11 +161,40 @@ function App() {
     await update(itemRef, { amount: newAmount });
   };
 
-  const handleDeleteItem = async (itemId, categoryId) => {
-    const itemRef = ref(db, `categories/${categoryId}/items/${itemId}`);
-    await remove(itemRef);
+  // Delete confirmation handlers
+  const confirmDeleteItem = (item) => {
+    setItemToDelete(item);
+    setShowDeleteConfirm(true);
   };
 
+  const handleDeleteItem = async () => {
+    if (itemToDelete) {
+      const itemRef = ref(
+        db,
+        `categories/${itemToDelete.categoryId}/items/${itemToDelete.id}`
+      );
+      await remove(itemRef);
+      setShowDeleteConfirm(false);
+      setItemToDelete(null);
+    }
+  };
+
+  const confirmDeleteCategory = () => {
+    setShowCategoryDeleteConfirm(true);
+  };
+
+  const handleDeleteCategory = async () => {
+    if (currentCategoryId) {
+      const categoryRef = ref(db, `categories/${currentCategoryId}`);
+      await remove(categoryRef);
+      setCurrentCategoryId(null);
+      currentCategoryIdRef.current = null;
+      setShowAllItems(true);
+      setShowCategoryDeleteConfirm(false);
+    }
+  };
+
+  // Item editing functions
   const handleEditItem = (item) => {
     setEditingItem(item);
     setNewItem({
@@ -168,16 +217,7 @@ function App() {
     }
   };
 
-  const handleDeleteCategory = async () => {
-    if (currentCategoryId) {
-      const categoryRef = ref(db, `categories/${currentCategoryId}`);
-      await remove(categoryRef);
-      setCurrentCategoryId(null);
-      currentCategoryIdRef.current = null;
-      setShowAllItems(true);
-    }
-  };
-
+  // View management functions
   const showAllInventory = () => {
     setShowAllItems(true);
     const allItems = categories
@@ -193,6 +233,39 @@ function App() {
 
   return (
     <>
+      {/* Delete confirmation dialogs */}
+      {showDeleteConfirm && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete {itemToDelete?.name}?</p>
+            <div className="modal-actions">
+              <button onClick={handleDeleteItem}>Yes, Delete</button>
+              <button onClick={() => {
+                setShowDeleteConfirm(false);
+                setItemToDelete(null);
+              }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCategoryDeleteConfirm && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Confirm Category Delete</h3>
+            <p>Are you sure you want to delete this category and all its items?</p>
+            <div className="modal-actions">
+              <button onClick={handleDeleteCategory}>Yes, Delete</button>
+              <button onClick={() => setShowCategoryDeleteConfirm(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main header */}
       <div className="header">
         <button className="settings-button" onClick={toggleSidebar}>
           Settings
@@ -206,6 +279,8 @@ function App() {
           </button>
         </div>
       </div>
+
+      {/* Sidebar menu */}
       <div className={`left-menu ${sidebarVisible ? '' : 'hidden'}`}>
         <div className="dropdown">
           <button className="category" onClick={showAllInventory}>
@@ -259,6 +334,7 @@ function App() {
         </div>
       </div>
 
+      {/* Main content area */}
       <div className={`table-area ${sidebarVisible ? '' : 'full-width'}`}>
         {showAllItems && (
           <>
@@ -304,7 +380,7 @@ function App() {
           )}
 
           {currentCategoryId && (
-            <button onClick={handleDeleteCategory} className="delete-all-button">
+            <button onClick={confirmDeleteCategory} className="delete-all-button">
               Delete Category
             </button>
           )}
@@ -352,14 +428,7 @@ function App() {
                     -
                   </button>
                   <button onClick={() => handleEditItem(item)}>Edit</button>
-                  <button
-                    onClick={() =>
-                      handleDeleteItem(
-                        item.id,
-                        showAllItems ? item.categoryId : currentCategoryId
-                      )
-                    }
-                  >
+                  <button onClick={() => confirmDeleteItem(item)}>
                     Delete
                   </button>
                 </td>
