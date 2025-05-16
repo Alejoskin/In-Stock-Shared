@@ -142,6 +142,30 @@ function App() {
     await update(itemRef, { amount: newAmount });
   };
 
+  const handleDeleteItem = async (itemId) => {
+    const itemRef = ref(db, `categories/${currentCategoryId}/items/${itemId}`);
+    await remove(itemRef);
+  };
+
+  const handleDeleteCategory = async () => {
+    if (currentCategoryId) {
+      const categoryRef = ref(db, `categories/${currentCategoryId}`);
+      await remove(categoryRef);
+      
+      // Reset current category and data
+      if (categories.length > 1) {
+        const newCurrentCategory = categories.find(cat => cat.id !== currentCategoryId);
+        setCurrentCategoryId(newCurrentCategory.id);
+        currentCategoryIdRef.current = newCurrentCategory.id;
+        setCurrentData(newCurrentCategory.items || []);
+      } else {
+        setCurrentCategoryId(null);
+        currentCategoryIdRef.current = null;
+        setCurrentData([]);
+      }
+    }
+  };
+
   // New function to show all inventory items
   const showAllInventory = () => {
     setShowAllItems(true);
@@ -266,6 +290,13 @@ function App() {
             placeholder="Amount"
           />
           <button onClick={handleAddItem}>Add Item</button>
+
+          {currentCategoryId && (
+            <button onClick={handleDeleteCategory} className="delete-all-button">
+              Delete Category
+            </button>
+          )}
+          
         </div>
         <table>
           <thead>
