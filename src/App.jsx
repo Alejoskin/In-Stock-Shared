@@ -25,6 +25,7 @@ function App() {
   
   // State for managing editing and item selection
   const [editingItem, setEditingItem] = useState(null);
+  const [editingCategory, setEditingCategory] = useState(null);
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
   const currentCategoryIdRef = useRef(null);
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
@@ -126,6 +127,20 @@ function App() {
         name: '',
       });
       setShowNewCategoryInput(false);
+    }
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setNewCategoryForm({ name: category.name });
+  };
+
+  const handleUpdateCategory = async () => {
+    if (editingCategory && newCategoryForm.name.trim()) {
+      const categoryRef = ref(db, `categories/${editingCategory.id}`);
+      await update(categoryRef, { name: newCategoryForm.name });
+      setEditingCategory(null);
+      setNewCategoryForm({ name: '' });
     }
   };
 
@@ -289,12 +304,45 @@ function App() {
         </div>
         {categories.map((category) => (
           <div className="dropdown" key={category.id}>
-            <button
-              className="category"
-              onClick={() => selectCategory(category)}
-            >
-              {category.name}
-            </button>
+            {editingCategory?.id === category.id ? (
+              <div className="new-category-input">
+                <input
+                  type="text"
+                  value={newCategoryForm.name}
+                  onChange={(e) =>
+                    setNewCategoryForm({
+                      ...newCategoryForm,
+                      name: e.target.value,
+                    })
+                  }
+                  placeholder="Category name"
+                />
+                <button onClick={handleUpdateCategory}>Save</button>
+                <button
+                  onClick={() => {
+                    setEditingCategory(null);
+                    setNewCategoryForm({ name: '' });
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="category-container">
+                <button
+                  className="category"
+                  onClick={() => selectCategory(category)}
+                >
+                  {category.name}
+                </button>
+                <button
+                  className="edit-category"
+                  onClick={() => handleEditCategory(category)}
+                >
+                  Edit
+                </button>
+              </div>
+            )}
           </div>
         ))}
         <div className="dropdown">
