@@ -262,6 +262,7 @@ button {
   background-color: #f8f9fa;
   border-radius: 5px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .new-item-form input {
@@ -269,12 +270,14 @@ button {
   border: 1px solid #ddd;
   border-radius: 4px;
   flex: 1;
+  min-width: 120px;
 }
 
 .new-item-form button {
   background-color: #e94560;
   color: white;
   padding: 8px 15px;
+  white-space: nowrap;
 }
 
 table {
@@ -282,23 +285,36 @@ table {
   width: 100%;
   border-collapse: collapse;
   color: black;
+  table-layout: fixed;
 }
 
 td, th {
   border: 1px solid gray;
   text-align: center;
   padding: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
+/* Column widths */
+th:nth-child(1), td:nth-child(1) { width: 15%; } /* Name */
+th:nth-child(2), td:nth-child(2) { width: 25%; } /* Description */
+th:nth-child(3), td:nth-child(3) { width: 15%; } /* Type */
+th:nth-child(4), td:nth-child(4) { width: 10%; } /* Amount */
+th:nth-child(5), td:nth-child(5) { width: 15%; } /* Category (when visible) */
+th:last-child, td:last-child { width: 20%; } /* Actions */
 
 tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
 td button {
-  margin: 0 5px;
-  padding: 5px 10px;
+  margin: 0 2px;
+  padding: 5px 8px;
   background-color: #e94560;
   color: white;
+  font-size: 12px;
 }
 
 td button:hover {
