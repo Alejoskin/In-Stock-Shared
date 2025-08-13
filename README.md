@@ -1,12 +1,45 @@
-# React + Vite
+# 📦 Accessible Inventory Management App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Responsive, mobile-friendly web app for managing inventory with secure login and full CRUD functionality.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📹 Demo
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+https://github.com/user-attachments/assets/aed49bbc-4741-4d42-b4e9-3fdd972e7eef
+
+
+*Click to watch a full walkthrough of the app (Login → Manage Inventory → Logout).*
+
+
+
+
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| **User Authentication** | Secure login system with credential validation. |
+| **Add Items** | Quickly add inventory items with essential details. | 
+| **Edit Items** | Update item information in a few clicks. | 
+| **Delete Items** | Remove outdated or incorrect entries. | 
+| **Responsive Design** | Optimized for mobile and desktop screens. | 
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend:** HTML, CSS, JavaScript <!-- Or React, Vue, etc. -->
+- **Backend:** Node.js <!-- Or PHP, Django, etc. -->
+- **Database:** Firebase <!-- Or MongoDB, etc. -->
+
+---
+
+## 🚀 Getting Started
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Alejoskin/In-Stock-Shared.git
